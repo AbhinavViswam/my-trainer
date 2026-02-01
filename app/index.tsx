@@ -1,39 +1,61 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { View, Text } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, useColorScheme } from "react-native";
 import Transactions from "@/components/Transactions";
-import "../global.css"
+import "../global.css";
+import TabBarIcon from "@/components/TabBarIcons";
 
 const Tab = createBottomTabNavigator();
 
 function HomeScreen() {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Home</Text>
+    <View className="flex-1 items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <Text className="text-xl font-semibold text-gray-900 dark:text-white">
+        Home
+      </Text>
     </View>
   );
 }
 
 export default function App() {
+  const isDark = useColorScheme() === "dark";
+
   return (
       <Tab.Navigator
-        screenOptions={({ route }) => ({
+        screenOptions={{
           headerShown: false,
-          tabBarIcon: ({ color, size }) => {
-            let iconName: keyof typeof Ionicons.glyphMap;
-
-            if (route.name === "Home") {
-              iconName = "home";
-            } else {
-              iconName = "card";
-            }
-
-            return <Ionicons name={iconName} size={size} color={color} />;
+          tabBarStyle: {
+            backgroundColor: isDark ? "#111827" : "#ffffff",
+            borderTopWidth: 0,
+            height: 64,
           },
-        })}
+          tabBarActiveTintColor: "#10b981",
+          tabBarInactiveTintColor: isDark ? "#9ca3af" : "#6b7280",
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: "600",
+            marginBottom: 6,
+          },
+        }}
       >
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Transactions" component={Transactions} />
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <TabBarIcon name="home" focused={focused} />
+            ),
+          }}
+        />
+
+        <Tab.Screen
+          name="Payments"
+          component={Transactions}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <TabBarIcon name="payments" focused={focused} />
+            ),
+          }}
+        />
       </Tab.Navigator>
   );
 }

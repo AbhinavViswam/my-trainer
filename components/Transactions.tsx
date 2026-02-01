@@ -6,14 +6,20 @@ import {
   Platform,
   FlatList,
   useColorScheme,
+  Modal,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import dayjs from "dayjs";
-import { getTransactions, initDB, insertTransaction } from "@/db/query";
+import {
+  deleteTransaction,
+  getTransactions,
+  initDB,
+  insertTransaction,
+} from "@/db/transactionQuery";
 import { Transaction } from "@/types/types";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { RefreshCcw } from "lucide-react-native";
+import { RefreshCcw, Trash2 } from "lucide-react-native";
 import "../global.css";
 
 const Transactions = () => {
@@ -22,6 +28,10 @@ const Transactions = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const colorScheme = useColorScheme();
+  const [selectedTransactionId, setSelectedTransactionId] = useState<
+    number | null
+  >(null);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   useEffect(() => {
     initDB();
@@ -45,14 +55,40 @@ const Transactions = () => {
     fetchTransactions();
   };
 
+  const openDeleteModal = (id: number) => {
+    setSelectedTransactionId(id);
+    setIsDeleteModalVisible(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedTransactionId === null) return;
+
+    deleteTransaction(selectedTransactionId);
+    fetchTransactions();
+
+    setSelectedTransactionId(null);
+    setIsDeleteModalVisible(false);
+  };
+
+  const cancelDelete = () => {
+    setSelectedTransactionId(null);
+    setIsDeleteModalVisible(false);
+  };
+
   const renderItem = ({ item }: { item: Transaction }) => (
     <View className="flex-row justify-between items-center bg-white dark:bg-gray-800 p-4 mb-2 rounded-xl shadow-sm">
       <Text className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
         ₹{item.amount}
       </Text>
-      <Text className="text-sm text-gray-600 dark:text-gray-400">
-        {dayjs(item.date).format("DD MMM YYYY")}
-      </Text>
+        <Text className="text-sm text-gray-600 dark:text-gray-400">
+          {dayjs(item.date).format("DD MMM YYYY")}
+        </Text>
+        <Pressable
+          onPress={() => openDeleteModal(item.id)}
+          className="px-3 py-2 rounded-lg bg-red-100 dark:bg-red-900/30 active:opacity-70"
+        >
+          <Trash2 size={16} color={"red"} />
+        </Pressable>
     </View>
   );
 
@@ -68,7 +104,10 @@ const Transactions = () => {
             onPress={refresh}
             className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-full active:opacity-70"
           >
-            <RefreshCcw size={20} color={colorScheme === "dark" ? "#6ee7b7" : "#059669"} />
+            <RefreshCcw
+              size={20}
+              color={colorScheme === "dark" ? "#6ee7b7" : "#059669"}
+            />
           </Pressable>
         </View>
 
@@ -79,7 +118,9 @@ const Transactions = () => {
           </Text>
           <TextInput
             placeholder="Enter amount"
-            placeholderTextColor={colorScheme === "dark" ? "#9ca3af" : "#6b7280"}
+            placeholderTextColor={
+              colorScheme === "dark" ? "#9ca3af" : "#6b7280"
+            }
             value={amount}
             keyboardType="number-pad"
             onChangeText={setAmount}
@@ -119,7 +160,9 @@ const Transactions = () => {
           onPress={addTransactionHandler}
           className="bg-emerald-600 dark:bg-emerald-500 rounded-xl py-4 items-center active:opacity-80 mb-6"
         >
-          <Text className="text-white font-semibold text-base">Add Transaction</Text>
+          <Text className="text-white font-semibold text-base">
+            Add Payment
+          </Text>
         </Pressable>
 
         {/* Transactions List */}
@@ -128,9 +171,12 @@ const Transactions = () => {
             <Text className="text-sm font-semibold text-gray-600 dark:text-gray-400">
               Amount
             </Text>
-            <Text className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-              Date
-            </Text>
+              <Text className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+                Date
+              </Text>
+              <Text className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+                Delete
+              </Text>
           </View>
 
           <FlatList
@@ -148,6 +194,42 @@ const Transactions = () => {
           />
         </View>
       </View>
+      <Modal
+        transparent
+        visible={isDeleteModalVisible}
+        animationType="fade"
+        onRequestClose={cancelDelete}
+      >
+        <View className="flex-1 bg-black/40 items-center justify-center">
+          <View className="bg-white dark:bg-gray-800 w-[85%] rounded-2xl p-6">
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              Delete Transaction
+            </Text>
+
+            <Text className="text-gray-600 dark:text-gray-400 mb-6">
+              Are you sure you want to delete this transaction?
+            </Text>
+
+            <View className="flex-row justify-end gap-3">
+              <Pressable
+                onPress={cancelDelete}
+                className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700"
+              >
+                <Text className="text-gray-800 dark:text-gray-200 font-medium">
+                  Cancel
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={confirmDelete}
+                className="px-4 py-2 rounded-lg bg-red-600"
+              >
+                <Text className="text-white font-medium">Delete</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

@@ -45,3 +45,12 @@ export const getTransactions = (): Transaction[] => {
     throw error;
   }
 };
+
+export const deleteTransaction = (id: number): void => {
+  try {
+    db.runSync("DELETE FROM transactions WHERE id = ?;", id);
+  } catch (error) {
+    console.log("Delete transaction error", error);
+    throw error;
+  }
+};
