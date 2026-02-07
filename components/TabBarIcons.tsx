@@ -1,8 +1,8 @@
 import { useColorScheme } from "react-native";
-import { Home, Wallet } from "lucide-react-native";
+import { DumbbellIcon, Home, User, Wallet } from "lucide-react-native";
 
 type TabBarIconProps = {
-  name: "home" | "payments";
+  name: "home" | "payments" | "workouts" | "profile";
   focused: boolean;
 };
 
@@ -23,6 +23,14 @@ export default function TabBarIcon({ name, focused }: TabBarIconProps) {
 
   if (name === "payments") {
     return <Wallet size={size} color={color} />;
+  }
+
+  if (name === "workouts") {
+    return <DumbbellIcon size={size} color={color} />;
+  }
+
+  if (name === "profile") {
+    return <User size={size} color={color} />;
   }
 
   return null;

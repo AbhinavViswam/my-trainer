@@ -80,25 +80,25 @@ const Transactions = () => {
       <Text className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
         ₹{item.amount}
       </Text>
-        <Text className="text-sm text-gray-600 dark:text-gray-400">
-          {dayjs(item.date).format("DD MMM YYYY")}
-        </Text>
-        <Pressable
-          onPress={() => openDeleteModal(item.id)}
-          className="px-3 py-2 rounded-lg bg-red-100 dark:bg-red-900/30 active:opacity-70"
-        >
-          <Trash2 size={16} color={"red"} />
-        </Pressable>
+      <Text className="text-sm text-gray-600 dark:text-gray-400">
+        {dayjs(item.date).format("DD MMM YYYY")}
+      </Text>
+      <Pressable
+        onPress={() => openDeleteModal(item.id)}
+        className="px-3 py-2 rounded-lg bg-red-100 dark:bg-red-900/30 active:opacity-70"
+      >
+        <Trash2 size={16} color={"red"} />
+      </Pressable>
     </View>
   );
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
-      <View className="px-5 pt-4">
+      <View className="px-5 pt-4 flex-1">
         {/* Header */}
         <View className="flex-row justify-between items-center mb-6">
           <Text className="text-2xl font-bold text-gray-900 dark:text-white">
-            Add Payment
+            Payments
           </Text>
           <Pressable
             onPress={refresh}
@@ -166,17 +166,17 @@ const Transactions = () => {
         </Pressable>
 
         {/* Transactions List */}
-        <View>
+        <View className="flex-1 pb-5">
           <View className="flex-row justify-between items-center mb-3 px-2">
             <Text className="text-sm font-semibold text-gray-600 dark:text-gray-400">
               Amount
             </Text>
-              <Text className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-                Date
-              </Text>
-              <Text className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-                Delete
-              </Text>
+            <Text className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+              Date
+            </Text>
+            <Text className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+              Delete
+            </Text>
           </View>
 
           <FlatList
@@ -184,6 +184,7 @@ const Transactions = () => {
             keyExtractor={(item) => item.id.toString()}
             renderItem={renderItem}
             showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
             ListEmptyComponent={
               <View className="items-center justify-center py-12">
                 <Text className="text-gray-500 dark:text-gray-400 text-base">
