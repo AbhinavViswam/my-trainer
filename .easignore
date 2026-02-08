@@ -1,0 +1,10 @@
+# Copy everything from your .gitignore file here
+
+/android
+/ios
+node_modules/
+.expo/
+.vscode/
+
+# Include a file not in source control
+!temp_file.json
