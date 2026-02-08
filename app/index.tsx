@@ -1,34 +1,16 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { View, Text, useColorScheme } from "react-native";
+import { useColorScheme } from "react-native";
 import Transactions from "@/components/Transactions";
 import "../global.css";
 import TabBarIcon from "@/components/TabBarIcons";
 import MyWorkouts from "@/components/MyWorkouts";
 import React from "react";
-import { initUserWorkoutDB } from "@/db/userWorkoutQuery";
-import { initWorkoutLogDB } from "@/db/workoutQuery";
-import { initDB } from "@/db/transactionQuery";
 import UserPage from "@/components/UserPage";
+import Home from "@/components/Home";
 const Tab = createBottomTabNavigator();
-
-function HomeScreen() {
-  return (
-    <View className="flex-1 items-center justify-center bg-gray-50 dark:bg-gray-900">
-      <Text className="text-xl font-semibold text-gray-900 dark:text-white">
-        Home
-      </Text>
-    </View>
-  );
-}
 
 export default function App() {
   const isDark = useColorScheme() === "dark";
-  React.useEffect(() => {
-    initUserWorkoutDB();
-    initWorkoutLogDB();
-    initDB();
-  }, []);
-
   return (
     <Tab.Navigator
       screenOptions={{
@@ -49,7 +31,7 @@ export default function App() {
     >
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={Home}
         options={{
           tabBarIcon: ({ focused }) => (
             <TabBarIcon name="home" focused={focused} />

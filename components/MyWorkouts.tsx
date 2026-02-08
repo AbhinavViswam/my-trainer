@@ -3,7 +3,6 @@ import {
   Text,
   Pressable,
   Platform,
-  ScrollView,
   TextInput,
   Modal,
   FlatList,
@@ -24,6 +23,7 @@ import {
   insertWorkoutLogs,
 } from "@/db/workoutQuery";
 import { Trash2 } from "lucide-react-native";
+import { initWeightDB, insertWeight } from "@/db/weightQuery";
 
 const WORKOUT_TYPES = [
   "Chest",
@@ -41,6 +41,11 @@ const MyWorkouts = () => {
   const [deleteType, setDeleteType] = useState<
     "history" | "userworkout" | null
   >(null);
+  const [weightModalVisible, setWeightModalVisible] = useState(false);
+  const [weight, setWeight] = useState("");
+  const [weightDate, setWeightDate] = useState(new Date());
+  const [showWeightDatePicker, setShowWeightDatePicker] = useState(false);
+
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -57,6 +62,7 @@ const MyWorkouts = () => {
   React.useEffect(() => {
     initUserWorkoutDB();
     fetchWorkouts();
+    initWeightDB();
     fetchHistory();
   }, []);
 
@@ -82,7 +88,7 @@ const MyWorkouts = () => {
 
     if (deleteType === "userworkout") {
       deleteUserWorkouts(selectedId);
-      setSelectedId(null)
+      setSelectedId(null);
       fetchWorkouts();
     }
 
@@ -130,12 +136,21 @@ const MyWorkouts = () => {
             Workout Logs
           </Text>
 
-          <Pressable
-            onPress={() => setModalVisible(true)}
-            className="bg-emerald-600 px-4 py-2 rounded-lg"
-          >
-            <Text className="text-white font-semibold">Create</Text>
-          </Pressable>
+          <View className="flex-row gap-2">
+            <Pressable
+              onPress={() => setWeightModalVisible(true)}
+              className="bg-blue-600 px-3 py-2 rounded-lg"
+            >
+              <Text className="text-white font-semibold">Weight</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setModalVisible(true)}
+              className="bg-emerald-600 px-4 py-2 rounded-lg"
+            >
+              <Text className="text-white font-semibold">Create</Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* Date */}
@@ -296,6 +311,84 @@ const MyWorkouts = () => {
 
       <Modal
         transparent
+        visible={weightModalVisible}
+        animationType="fade"
+        onRequestClose={() => setWeightModalVisible(false)}
+      >
+        <View className="flex-1 bg-black/40 items-center justify-center">
+          <View className="bg-white dark:bg-gray-800 w-[85%] rounded-2xl p-6">
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Add Weight
+            </Text>
+
+            {/* Weight Input */}
+            <Text className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+              Weight (kg)
+            </Text>
+            <TextInput
+              value={weight}
+              onChangeText={setWeight}
+              keyboardType="numeric"
+              placeholder="e.g. 72.5"
+              className="border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 mb-4 text-gray-900 dark:text-white"
+            />
+
+            {/* Date */}
+            <Text className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+              Date
+            </Text>
+
+            <Pressable
+              onPress={() => setShowWeightDatePicker(true)}
+              className="border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-3 mb-6"
+            >
+              <Text className="text-gray-900 dark:text-white">
+                {dayjs(weightDate).format("DD MMM YYYY")}
+              </Text>
+            </Pressable>
+
+            {showWeightDatePicker && (
+              <DateTimePicker
+                value={weightDate}
+                mode="date"
+                display={Platform.OS === "android" ? "default" : "spinner"}
+                onChange={(_, selectedDate) => {
+                  setShowWeightDatePicker(false);
+                  if (selectedDate) setWeightDate(selectedDate);
+                }}
+              />
+            )}
+
+            {/* Buttons */}
+            <View className="flex-row justify-end gap-3">
+              <Pressable
+                onPress={() => setWeightModalVisible(false)}
+                className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700"
+              >
+                <Text className="text-gray-800 dark:text-gray-200">Cancel</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => {
+                  if (!weight) return;
+
+                  insertWeight(Number(weight), weightDate.toISOString());
+
+                  setWeight("");
+                  setWeightDate(new Date());
+                  setWeightModalVisible(false);
+                }}
+                className="px-4 py-2 rounded-lg bg-blue-600"
+              >
+                <Text className="text-white font-semibold">Save</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        transparent
         visible={modalVisible}
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
@@ -361,3 +454,4 @@ const MyWorkouts = () => {
 };
 
 export default MyWorkouts;
+

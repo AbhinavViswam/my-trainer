@@ -11,26 +11,44 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import * as SecureStore from "expo-secure-store";
 import { User as UserIcon, Pencil } from "lucide-react-native";
 
-const USERNAME_KEY = "username";
+export const USERNAME_KEY = "username";
+export const MEMBER_SINCE_KEY = "member_since";
 
 const UserPage = () => {
   const [username, setUsername] = useState("User");
+  const [memberSince, setMemberSince] = useState("");
   const [editName, setEditName] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const isDark = useColorScheme() === "dark";
-  const Color = isDark ? "white" : "black"
-
-  const weight = 0;
-  const height = 0;
+  const Color = isDark ? "white" : "black";
 
   useEffect(() => {
     loadUsername();
+    initMemberSince();
   }, []);
+
+  const initMemberSince = async () => {
+    const existing = await SecureStore.getItemAsync(MEMBER_SINCE_KEY);
+    if (!existing) {
+      await SecureStore.setItemAsync(
+        MEMBER_SINCE_KEY,
+        new Date().toISOString(),
+      );
+    }
+  };
 
   const loadUsername = async () => {
     const storedName = await SecureStore.getItemAsync(USERNAME_KEY);
-    if (storedName) {
-      setUsername(storedName);
+    if (storedName) setUsername(storedName);
+
+    const since = await SecureStore.getItemAsync(MEMBER_SINCE_KEY);
+    if (since) {
+      setMemberSince(
+        new Date(since).toLocaleDateString("en-IN", {
+          month: "short",
+          year: "numeric",
+        }),
+      );
     }
   };
 
@@ -69,29 +87,39 @@ const UserPage = () => {
         </View>
 
         {/* Stats Card */}
+        {/* Profile Summary Card */}
         <View className="w-full bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-200 dark:border-gray-700">
           <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Body Stats
+            Profile
           </Text>
 
-          <View className="flex-row justify-between">
+          <View className="flex-row justify-between mb-3">
             <View>
               <Text className="text-gray-500 dark:text-gray-400 text-sm">
-                Weight
+                Focus
               </Text>
-              <Text className="text-xl font-bold text-gray-900 dark:text-white">
-                {weight} kg
+              <Text className="text-base font-semibold text-gray-900 dark:text-white">
+                Workout Tracking
               </Text>
             </View>
 
             <View>
               <Text className="text-gray-500 dark:text-gray-400 text-sm">
-                Height
+                Member Since
               </Text>
-              <Text className="text-xl font-bold text-gray-900 dark:text-white">
-                {height} cm
+              <Text className="text-base font-semibold text-gray-900 dark:text-white">
+                {memberSince || "Today"}
               </Text>
             </View>
+          </View>
+
+          <View className="mt-2">
+            <Text className="text-gray-500 dark:text-gray-400 text-sm">
+              Status
+            </Text>
+            <Text className="text-base font-semibold text-emerald-600 dark:text-emerald-400">
+              Stay Consistent 💪
+            </Text>
           </View>
         </View>
       </View>
@@ -121,9 +149,7 @@ const UserPage = () => {
                 onPress={() => setModalVisible(false)}
                 className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700"
               >
-                <Text className="text-gray-800 dark:text-gray-200">
-                  Cancel
-                </Text>
+                <Text className="text-gray-800 dark:text-gray-200">Cancel</Text>
               </Pressable>
 
               <Pressable

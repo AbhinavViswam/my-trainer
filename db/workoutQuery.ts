@@ -46,3 +46,14 @@ export const deleteWorkoutHistory = (id: number) => {
     throw error;
   }
 };
+
+export const getWorkoutTrend = () => {
+  try {
+    return db.getAllSync(
+      `SELECT COUNT(*) as count, uw.category FROM workout_logs wl JOIN userworkouts uw ON wl.workout_id = uw.id GROUP BY uw.category`,
+    );
+  } catch (error) {
+    console.log("Delete workout history error", error);
+    throw error;
+  }
+};

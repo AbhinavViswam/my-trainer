@@ -1,7 +1,7 @@
 import { Transaction } from "@/types/types";
 import * as SQLite from "expo-sqlite";
 
-const db = SQLite.openDatabaseSync("transactions.db");
+const db = SQLite.openDatabaseSync("workouts.db");
 
 export const initDB = () => {
   try {
